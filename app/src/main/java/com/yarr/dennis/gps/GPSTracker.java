@@ -1,6 +1,8 @@
 package com.yarr.dennis.gps;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +15,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -60,10 +63,12 @@ public class GPSTracker extends Service implements LocationListener {
     @Override
     public void onCreate() {
         super.onCreate();
+        LogManager.tryToLog();
+
         IMEI = Imei.getUniqueIMEIId(getApplicationContext());
 
         Toast.makeText(getApplicationContext(), "IMEI " + IMEI, Toast.LENGTH_LONG).show();
-        Log.d("Log.d", "IMEI " + IMEI);
+
 
         getLocation();
         startTimer();
@@ -87,13 +92,13 @@ public class GPSTracker extends Service implements LocationListener {
                     sendGpsToServer();
                 }
             }
-        }, 0, 60000);
+        }, 0, 10000);
     }
 
     @Override
     public void onDestroy() {
-        Intent intent = new Intent("restartApps");
-        sendBroadcast(intent);
+//        Intent intent = new Intent("restartApps");
+//        sendBroadcast(intent);
 
         super.onDestroy();
         if (timer != null) {
@@ -103,6 +108,16 @@ public class GPSTracker extends Service implements LocationListener {
         }
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        //create an intent that you want to start again.
+        Intent intent = new Intent(getApplicationContext(), GPSTracker.class);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime() + 5000, pendingIntent);
+        super.onTaskRemoved(rootIntent);
+    }
 
     public Location getLocation() {
         try {
@@ -190,7 +205,7 @@ public class GPSTracker extends Service implements LocationListener {
                 @Override
                 public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                     Toast.makeText(getApplicationContext(), response.message() + "  " + String.valueOf(latitude) + " " + String.valueOf(longitude), Toast.LENGTH_LONG).show();
-                    Log.d("Log.d", response.message() + "  " + String.valueOf(latitude) + " " + String.valueOf(longitude));
+                    Log.d("Log.d", IMEI+ "  " + String.valueOf(latitude) + " " + String.valueOf(longitude));
                 }
 
                 @Override
