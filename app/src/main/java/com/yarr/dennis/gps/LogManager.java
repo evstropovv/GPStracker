@@ -11,7 +11,7 @@ public class LogManager {
 
         if (isExternalStorageWritable()) {
             File appDirectory = new File(Environment.getExternalStorageDirectory() + "");
-            File logFile = new File(appDirectory, "LogggsGPS" +System.currentTimeMillis()+ Service".txt");
+            File logFile = new File(appDirectory, "LogggsGPS.txt");
             // create app folder
             if (!appDirectory.exists()) {
                 appDirectory.mkdir();
