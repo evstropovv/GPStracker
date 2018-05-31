@@ -5,18 +5,13 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.SystemClock;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,8 +28,6 @@ import retrofit2.Callback;
 
 public class GPSTracker extends Service implements LocationListener {
     Timer timer;
-
-    //  private final Context mContext;
 
     // flag for GPS status
     boolean isGPSEnabled = false;
@@ -64,12 +57,8 @@ public class GPSTracker extends Service implements LocationListener {
     public void onCreate() {
         super.onCreate();
         LogManager.tryToLog();
-
         IMEI = Imei.getUniqueIMEIId(getApplicationContext());
-
         Toast.makeText(getApplicationContext(), "IMEI " + IMEI, Toast.LENGTH_LONG).show();
-
-
         getLocation();
         startTimer();
 
@@ -97,9 +86,6 @@ public class GPSTracker extends Service implements LocationListener {
 
     @Override
     public void onDestroy() {
-//        Intent intent = new Intent("restartApps");
-//        sendBroadcast(intent);
-
         super.onDestroy();
         if (timer != null) {
             timer.cancel();
